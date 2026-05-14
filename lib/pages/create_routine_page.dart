@@ -84,7 +84,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
       dayValue = 'Sunday';
     });
 
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   Future<void> readCategories() async {

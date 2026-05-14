@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:routine_app/collections/routine/routine.dart';
 import 'package:routine_app/pages/create_routine_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -11,6 +12,21 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  List<Routine> routines = [];
+  @override
+  void initState() {
+    super.initState();
+    _readAllRoutines();
+  }
+
+  Future<void> _readAllRoutines() async {
+    final _routines = await widget.isar.routines.where().findAll();
+
+    setState(() {
+      routines = _routines;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,15 +34,65 @@ class _MainPageState extends State<MainPage> {
         title: Text("Routine"),
         actions: [
           IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateRoutinePage(isar: widget.isar),
-              ),
-            ),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateRoutinePage(isar: widget.isar),
+                ),
+              );
+
+              if (result == true) _readAllRoutines();
+            },
             icon: Icon(Icons.add),
           ),
         ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          children: [
+            ...List.generate(
+              routines.length,
+              (index) => Card(
+                child: ListTile(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        routines[index].title,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            WidgetSpan(child: Icon(Icons.schedule, size: 18)),
+                            TextSpan(text: " ${routines[index].startTime}"),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            WidgetSpan(
+                              child: Icon(Icons.calendar_month, size: 18),
+                            ),
+                            TextSpan(text: " ${routines[index].day}"),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: Icon(Icons.keyboard_arrow_right),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
