@@ -11,8 +11,8 @@ class CreateRoutinePage extends StatefulWidget {
 }
 
 class _CreateRoutinePageState extends State<CreateRoutinePage> {
-  List<String> categories = ['work', 'school', 'home'];
-  String categoryValue = 'work';
+  List<Category>? categories;
+  Category? categoryValue;
   final TextEditingController _category = TextEditingController();
 
   final TextEditingController _title = TextEditingController();
@@ -56,6 +56,22 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
     });
 
     _category.clear();
+    readCategories();
+  }
+
+  Future<void> readCategories() async {
+    final _categories = widget.isar.categorys;
+    final List<Category> allCategories = await _categories.where().findAll();
+
+    setState(() {
+      categories = allCategories;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    readCategories();
   }
 
   @override
@@ -81,9 +97,10 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
                       dropdownColor: Colors.white,
                       value: categoryValue,
                       icon: Icon(Icons.keyboard_arrow_down),
-                      items: categories
-                          .map<DropdownMenuItem<String>>(
-                            (e) => DropdownMenuItem(value: e, child: Text(e)),
+                      items: categories!
+                          .map<DropdownMenuItem<Category>>(
+                            (e) =>
+                                DropdownMenuItem(value: e, child: Text(e.name)),
                           )
                           .toList(),
                       onChanged: (value) {
@@ -103,7 +120,11 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
                           content: TextFormField(controller: _category),
                           actions: [
                             ElevatedButton(
-                              onPressed: () => onAddCategory(widget.isar),
+                              onPressed: () {
+                                if (_category.text.trim().isNotEmpty) {
+                                  onAddCategory(widget.isar);
+                                }
+                              },
                               child: Text('Add'),
                             ),
                           ],
