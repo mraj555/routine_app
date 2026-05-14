@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:routine_app/collections/category/category.dart';
+import 'package:routine_app/collections/routine/routine.dart';
 
 class CreateRoutinePage extends StatefulWidget {
   final Isar isar;
@@ -59,6 +62,31 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
     readCategories();
   }
 
+  Future<void> onAddRoutine(BuildContext context) async {
+    final routine = widget.isar.routines;
+
+    print('Selected Category: ${categoryValue!.name}');
+
+    final newRoutine = Routine()
+      ..title = _title.text.trim()
+      ..category.value = categoryValue
+      ..day = dayValue
+      ..startTime = _startTime.text.trim();
+
+    await widget.isar.writeTxn(() async {
+      await routine.put(newRoutine);
+    });
+
+    _title.clear();
+    _startTime.clear();
+    setState(() {
+      categoryValue = null;
+      dayValue = 'Sunday';
+    });
+
+    Navigator.pop(context);
+  }
+
   Future<void> readCategories() async {
     final _categories = widget.isar.categorys;
     final List<Category> allCategories = await _categories.where().findAll();
@@ -97,8 +125,8 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
                       dropdownColor: Colors.white,
                       value: categoryValue,
                       icon: Icon(Icons.keyboard_arrow_down),
-                      items: categories!
-                          .map<DropdownMenuItem<Category>>(
+                      items: categories
+                          ?.map<DropdownMenuItem<Category>>(
                             (e) =>
                                 DropdownMenuItem(value: e, child: Text(e.name)),
                           )
@@ -106,6 +134,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
                       onChanged: (value) {
                         setState(() {
                           categoryValue = value!;
+                          print("'Selected Category': ${categoryValue!.name}");
                         });
                       },
                       isExpanded: true,
@@ -189,7 +218,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
               Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => onAddRoutine(context),
                   child: Text('Add Routine'),
                 ),
               ),
