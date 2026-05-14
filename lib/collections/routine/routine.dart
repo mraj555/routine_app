@@ -1,9 +1,11 @@
 import 'package:isar/isar.dart';
-import 'package:routine_app/collections/category.dart';
+import 'package:routine_app/collections/category/category.dart';
+
+part 'routine.g.dart';
 
 @collection
 class Routine {
-  int id = Isar.autoIncrement;
+  Id id = Isar.autoIncrement;
 
   late String title;
 

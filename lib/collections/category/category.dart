@@ -1,8 +1,9 @@
 import 'package:isar/isar.dart';
+part 'category.g.dart';
 
 @collection
 class Category {
-  int id = Isar.autoIncrement;
+  Id id = Isar.autoIncrement;
 
   @Index(unique: true)
   late String name;
