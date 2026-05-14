@@ -8,15 +8,16 @@ import 'package:routine_app/pages/main_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final dir = await getApplicationSupportDirectory();
-  final isar = await Isar.open([
+  final Isar isar = await Isar.open([
     RoutineSchema,
     CategorySchema,
   ], directory: dir.path);
-  runApp(const MyApp());
+  runApp(MyApp(isar: isar));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Isar isar;
+  const MyApp({super.key, required this.isar});
 
   // This widget is the root of your application.
   @override
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: MainPage(isar: isar),
     );
   }
 }

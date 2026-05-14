@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:routine_app/collections/category/category.dart';
 
 class CreateRoutinePage extends StatefulWidget {
-  const CreateRoutinePage({super.key});
+  final Isar isar;
+  const CreateRoutinePage({super.key, required this.isar});
 
   @override
   State<CreateRoutinePage> createState() => _CreateRoutinePageState();
@@ -28,7 +31,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
 
   TimeOfDay? selectedTime = TimeOfDay.now();
 
-  _onSelectTime(BuildContext context) async {
+  Future<void> _onSelectTime(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
       context: context,
       initialTime: selectedTime!,
@@ -41,6 +44,18 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
         _startTime.text = selectedTime!.format(context);
       });
     }
+  }
+
+  Future<void> onAddCategory(Isar isar) async {
+    final categories = isar.categorys;
+
+    final newCategory = Category()..name = _category.text.trim();
+
+    await isar.writeTxn(() async {
+      await categories.put(newCategory);
+    });
+
+    _category.clear();
   }
 
   @override
@@ -88,7 +103,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
                           content: TextFormField(controller: _category),
                           actions: [
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () => onAddCategory(widget.isar),
                               child: Text('Add'),
                             ),
                           ],
