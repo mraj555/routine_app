@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:routine_app/collections/category/category.dart';
 import 'package:routine_app/collections/routine/routine.dart';
+import 'package:routine_app/pages/main_page.dart';
 
 class UpdateRoutinePage extends StatefulWidget {
   final Isar isar;
@@ -75,7 +76,6 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
       ..startTime = _startTime.text.trim();
 
     await widget.isar.writeTxn(() async {
-
       await routine.put(newRoutine);
 
       await newRoutine.category.save();
@@ -120,7 +120,55 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Update Routine')),
+      appBar: AppBar(
+        title: const Text('Update Routine'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext ctx) => AlertDialog(
+                  title: Text("Delete Routine"),
+                  content: Text(
+                    "Are you sure you want to delete this routine?",
+                  ),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      // style: ElevatedButton.styleFrom(
+                      //   backgroundColor: Colors.grey,
+                      // ),
+                      child: Text("Cancel"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await widget.isar.writeTxn(() async {
+                          await widget.isar.routines.delete(widget.routine.id);
+                        });
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MainPage(isar: widget.isar),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text("Delete"),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: Icon(Icons.delete),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
