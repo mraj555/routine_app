@@ -1,19 +1,22 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:routine_app/collections/category/category.dart';
 import 'package:routine_app/collections/routine/routine.dart';
 
-class CreateRoutinePage extends StatefulWidget {
+class UpdateRoutinePage extends StatefulWidget {
   final Isar isar;
-  const CreateRoutinePage({super.key, required this.isar});
+  final Routine routine;
+  const UpdateRoutinePage({
+    super.key,
+    required this.isar,
+    required this.routine,
+  });
 
   @override
-  State<CreateRoutinePage> createState() => _CreateRoutinePageState();
+  State<UpdateRoutinePage> createState() => _UpdateRoutinePageState();
 }
 
-class _CreateRoutinePageState extends State<CreateRoutinePage> {
+class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
   List<Category>? categories;
   Category? categoryValue;
   final TextEditingController _category = TextEditingController();
@@ -62,16 +65,17 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
     readCategories();
   }
 
-  Future<void> onAddRoutine(BuildContext context) async {
+  Future<void> onUpdateRoutine(BuildContext context) async {
     final routine = widget.isar.routines;
 
-    final newRoutine = Routine()
+    final newRoutine = widget.routine
       ..title = _title.text.trim()
       ..category.value = categoryValue
       ..day = dayValue
       ..startTime = _startTime.text.trim();
 
     await widget.isar.writeTxn(() async {
+
       await routine.put(newRoutine);
 
       await newRoutine.category.save();
@@ -94,6 +98,16 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
     setState(() {
       categories = allCategories;
     });
+
+    _title.text = widget.routine.title;
+    _startTime.text = widget.routine.startTime;
+    dayValue = widget.routine.day;
+
+    await widget.routine.category.load();
+    int? getId = widget.routine.category.value?.id;
+    setState(() {
+      categoryValue = categories?[getId! - 1];
+    });
   }
 
   @override
@@ -106,7 +120,7 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Create Routine')),
+      appBar: AppBar(title: const Text('Update Routine')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -217,8 +231,8 @@ class _CreateRoutinePageState extends State<CreateRoutinePage> {
               Align(
                 alignment: Alignment.center,
                 child: ElevatedButton(
-                  onPressed: () => onAddRoutine(context),
-                  child: Text('Add Routine'),
+                  onPressed: () => onUpdateRoutine(context),
+                  child: Text('Update Routine'),
                 ),
               ),
             ],
