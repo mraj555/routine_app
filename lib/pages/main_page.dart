@@ -13,20 +13,35 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<Routine> routines = [];
+  Future<List<Routine>>? _routine;
+  final TextEditingController _search = TextEditingController();
+  bool searching = false;
+
   @override
   void initState() {
     super.initState();
-    _readAllRoutines();
+    _routine = _readAllRoutines();
   }
 
-  Future<List<Routine>> _readAllRoutines() async {
-    final _routines = await widget.isar.routines.where().findAll();
+  Future<List<Routine>> _readAllRoutines({String? search}) async {
+    if (search != null && search.isNotEmpty) {
+      return await widget.isar.routines
+          .filter()
+          .titleContains(search, caseSensitive: false)
+          .findAll();
+    }
+
+    return await widget.isar.routines.where().findAll();
+  }
+
+  Future<void> onClearAll() async {
+    await widget.isar.writeTxn(() async {
+      await widget.isar.routines.clear();
+    });
 
     setState(() {
-      routines = _routines;
+      _routine = _readAllRoutines();
     });
-    return _routines;
   }
 
   @override
@@ -36,88 +51,136 @@ class _MainPageState extends State<MainPage> {
         title: Text("Routine"),
         actions: [
           IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateRoutinePage(isar: widget.isar),
-              ),
-            ),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateRoutinePage(isar: widget.isar),
+                ),
+              );
+
+              setState(() {
+                _routine = _readAllRoutines();
+              });
+            },
             icon: Icon(Icons.add),
           ),
         ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: FutureBuilder(
-          future: _readAllRoutines(),
-          builder: (context, asyncSnapshot) {
-            if (asyncSnapshot.hasData || asyncSnapshot.data!.isNotEmpty) {
-              return Column(
-                children: [
-                  ...List.generate(
-                    routines.length,
-                    (index) => Card(
-                      child: ListTile(
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              routines[index].title,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 4),
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _search,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(style: BorderStyle.solid),
+                ),
+                hintText: 'Search routine',
+                hintStyle: TextStyle(fontStyle: FontStyle.italic),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _routine = _readAllRoutines(search: value);
+                });
+              },
+            ),
+            SizedBox(height: 8),
+            FutureBuilder(
+              future: _routine,
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.hasData && asyncSnapshot.data!.isNotEmpty) {
+                  final routines = asyncSnapshot.data ?? [];
+
+                  return Column(
+                    children: [
+                      ...List.generate(
+                        routines.length,
+                        (index) => Card(
+                          child: ListTile(
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  routines[index].title,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(Icons.schedule, size: 18),
+                                SizedBox(height: 4),
+                                RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                    children: [
+                                      WidgetSpan(
+                                        child: Icon(Icons.schedule, size: 18),
+                                      ),
+                                      TextSpan(
+                                        text: " ${routines[index].startTime}",
+                                      ),
+                                    ],
                                   ),
-                                  TextSpan(
-                                    text: " ${routines[index].startTime}",
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
                                 ),
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(Icons.calendar_month, size: 18),
+                                SizedBox(height: 4),
+                                RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                    children: [
+                                      WidgetSpan(
+                                        child: Icon(
+                                          Icons.calendar_month,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      TextSpan(text: " ${routines[index].day}"),
+                                    ],
                                   ),
-                                  TextSpan(text: " ${routines[index].day}"),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        trailing: Icon(Icons.keyboard_arrow_right),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext ctx) => UpdateRoutinePage(
-                              isar: widget.isar,
-                              routine: routines[index],
-                            ),
+                            trailing: Icon(Icons.keyboard_arrow_right),
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext ctx) =>
+                                      UpdateRoutinePage(
+                                        isar: widget.isar,
+                                        routine: routines[index],
+                                      ),
+                                ),
+                              );
+
+                              setState(() {
+                                _routine = _readAllRoutines();
+                              });
+                            },
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return SizedBox();
-            }
-          },
+                    ],
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: SizedBox(
+          height: 50,
+          child: ElevatedButton(
+            onPressed: onClearAll,
+            child: Text("Clear All"),
+          ),
         ),
       ),
     );
