@@ -16,11 +16,14 @@ class _MainPageState extends State<MainPage> {
   Future<List<Routine>>? _routine;
   final TextEditingController _search = TextEditingController();
   bool searching = false;
+  String feedback = "";
+  MaterialColor feedbackColor = Colors.blue;
 
   @override
   void initState() {
     super.initState();
     _routine = _readAllRoutines();
+    createWatcher();
   }
 
   Future<List<Routine>> _readAllRoutines({String? search}) async {
@@ -42,6 +45,24 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _routine = _readAllRoutines();
     });
+  }
+
+  createWatcher() async {
+    Query<Routine> getRoutines = await widget.isar.routines.where().build();
+
+    Stream<List<Routine>> queryChanged = getRoutines.watch(
+      fireImmediately: true,
+    );
+    queryChanged.listen((routine) {
+      if (routine.length - 1 > 3) {
+        feedback = "You have more than 3 tasks to do.";
+        feedbackColor = Colors.red;
+      } else {
+        feedback = "You are right on track.";
+        feedbackColor = Colors.blue;
+      }
+    });
+    setState(() {});
   }
 
   @override
@@ -85,6 +106,14 @@ class _MainPageState extends State<MainPage> {
                   _routine = _readAllRoutines(search: value);
                 });
               },
+            ),
+            SizedBox(height: 8),
+            Text(
+              feedback,
+              style: TextStyle(
+                color: feedbackColor,
+                fontStyle: FontStyle.italic,
+              ),
             ),
             SizedBox(height: 8),
             FutureBuilder(
