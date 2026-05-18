@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Get Data From Isar Database",
+  "keywords": [
+    "isar"
+  ],
+  "license": "ISC",
+  "author": "DevTestify Labs",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1"
+  }
+}

@@ -128,18 +128,19 @@ Product _productDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Product();
-  object.category = reader.readStringOrNull(offsets[0]);
-  object.description = reader.readStringOrNull(offsets[1]);
-  object.id = id;
-  object.image = reader.readStringOrNull(offsets[2]);
-  object.price = reader.readDoubleOrNull(offsets[3]);
-  object.rating = reader.readObjectOrNull<Rating>(
-    offsets[4],
-    RatingSchema.deserialize,
-    allOffsets,
+  final object = Product(
+    category: reader.readStringOrNull(offsets[0]),
+    description: reader.readStringOrNull(offsets[1]),
+    id: id,
+    image: reader.readStringOrNull(offsets[2]),
+    price: reader.readDoubleOrNull(offsets[3]),
+    rating: reader.readObjectOrNull<Rating>(
+      offsets[4],
+      RatingSchema.deserialize,
+      allOffsets,
+    ),
+    title: reader.readStringOrNull(offsets[5]),
   );
-  object.title = reader.readStringOrNull(offsets[5]);
   return object;
 }
 
@@ -1293,9 +1294,10 @@ Rating _ratingDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Rating();
-  object.count = reader.readLongOrNull(offsets[0]);
-  object.rate = reader.readDoubleOrNull(offsets[1]);
+  final object = Rating(
+    count: reader.readLongOrNull(offsets[0]),
+    rate: reader.readDoubleOrNull(offsets[1]),
+  );
   return object;
 }
 

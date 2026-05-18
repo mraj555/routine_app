@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:logger/logger.dart';
 import 'package:routine_app/collections/category/category.dart';
 import 'package:routine_app/collections/product/product.dart';
 import 'package:routine_app/collections/routine/routine.dart';
@@ -97,6 +98,21 @@ class _MainPageState extends State<MainPage> {
     return await widget.isar.products.where().findAll();
   }
 
+  _isarToAPI() async {
+    final prodt = await widget.isar.products.where().findAll();
+    List<Map<String, dynamic>>? listProducts = prodt
+        .map((e) => e.toJson())
+        .toList();
+    apiService.init(BaseOptions(baseUrl: serverUrl));
+    Map<String, dynamic> params = {'products': listProducts};
+    final response = await apiService.request(
+      endpoint: '/products',
+      method: Method.POST,
+      params: params,
+    );
+    Logger().i(response);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +142,13 @@ class _MainPageState extends State<MainPage> {
               setState(() {});
             },
             icon: Icon(Icons.download),
+          ),
+
+          IconButton(
+            onPressed: () {
+              _isarToAPI();
+            },
+            icon: Icon(Icons.upload),
           ),
         ],
       ),
