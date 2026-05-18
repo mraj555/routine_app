@@ -1,8 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:routine_app/collections/category/category.dart';
+import 'package:routine_app/collections/product/product.dart';
 import 'package:routine_app/collections/routine/routine.dart';
+import 'package:routine_app/config.dart';
 import 'package:routine_app/pages/create_routine_page.dart';
 import 'package:routine_app/pages/update_routine_page.dart';
+import 'package:routine_app/service/api_service.dart';
 
 class MainPage extends StatefulWidget {
   final Isar isar;
@@ -18,6 +23,7 @@ class _MainPageState extends State<MainPage> {
   bool searching = false;
   String feedback = "";
   MaterialColor feedbackColor = Colors.blue;
+  APIService apiService = APIService();
 
   @override
   void initState() {
@@ -65,6 +71,32 @@ class _MainPageState extends State<MainPage> {
     setState(() {});
   }
 
+  Future<void> _apiToIsar() async {
+    apiService.init(
+      BaseOptions(baseUrl: baseUrl, contentType: 'application/json'),
+    );
+
+    final response = await apiService.request(
+      endpoint: 'products?limit=6',
+      method: Method.GET,
+    );
+
+    List<Map<String, dynamic>> products = (response.data! as List)
+        .map((e) => e as Map<String, dynamic>)
+        .toList();
+
+    await widget.isar.writeTxn(() async {
+      await widget.isar.products.clear();
+      await widget.isar.products.importJson(products);
+    });
+
+    setState(() {});
+  }
+
+  Future<List<Product>> _readProducts() async {
+    return await widget.isar.products.where().findAll();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +117,15 @@ class _MainPageState extends State<MainPage> {
               });
             },
             icon: Icon(Icons.add),
+          ),
+
+          IconButton(
+            onPressed: () async {
+              await _apiToIsar();
+
+              setState(() {});
+            },
+            icon: Icon(Icons.download),
           ),
         ],
       ),
@@ -197,6 +238,56 @@ class _MainPageState extends State<MainPage> {
                 } else {
                   return SizedBox();
                 }
+              },
+            ),
+
+            FutureBuilder<List<Product>>(
+              future: _readProducts(),
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.hasData && asyncSnapshot.data!.isNotEmpty) {
+                  final product = asyncSnapshot.data!;
+
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    children: List.generate(
+                      product.length,
+                      (index) => Card(
+                        elevation: 4.0,
+
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                height: 90,
+                                child: Image.network(
+                                  product[index].image!,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                product[index].title!,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                              ElevatedButton(
+                                onPressed: () {},
+                                child: Text("View"),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox();
               },
             ),
           ],
