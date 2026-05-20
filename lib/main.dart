@@ -26,8 +26,43 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Color(0xFF0D0D0D),
+        colorScheme: ColorScheme.dark(
+          primary: Color(0xFF6C63FF),
+          secondary: Color(0xFF00D4AA),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF1A1A2E),
+          elevation: 0,
+        ),
+        cardTheme: CardThemeData(
+          color: Color(0xFF1A1A2E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF6C63FF),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Color(0xFF1A1A2E),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Color(0xFF6C63FF), width: 2),
+          ),
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: MainPage(isar: isar),

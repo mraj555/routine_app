@@ -119,27 +119,34 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFF0D0D0D),
       appBar: AppBar(
-        title: const Text('Update Routine'),
+        backgroundColor: Color(0xFF1A1A2E),
+        title: const Text(
+          'Update Routine',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext ctx) => AlertDialog(
-                  title: Text("Delete Routine"),
+                  backgroundColor: Color(0xFF1A1A2E),
+                  title: Text("Delete Routine", style: TextStyle(color: Colors.white)),
                   content: Text(
                     "Are you sure you want to delete this routine?",
+                    style: TextStyle(color: Color(0xFFB0B0C3)),
                   ),
                   actions: [
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      // style: ElevatedButton.styleFrom(
-                      //   backgroundColor: Colors.grey,
-                      // ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1A1A2E),
+                        foregroundColor: Colors.white,
+                      ),
                       child: Text("Cancel"),
                     ),
                     ElevatedButton(
@@ -165,7 +172,7 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
                 ),
               );
             },
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.delete, color: Color(0xFFFF4757)),
           ),
         ],
       ),
@@ -176,64 +183,140 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               /// Category
-              Text('Category', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Category',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFB0B0C3),
+                  fontSize: 13,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: DropdownButton(
-                      focusColor: Colors.white,
-                      dropdownColor: Colors.white,
-                      value: categoryValue,
-                      icon: Icon(Icons.keyboard_arrow_down),
-                      items: categories
-                          ?.map<DropdownMenuItem<Category>>(
-                            (e) =>
-                                DropdownMenuItem(value: e, child: Text(e.name)),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          categoryValue = value!;
-                        });
-                      },
-                      isExpanded: true,
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF1A1A2E),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Color(0xFF6C63FF), width: 1),
+                      ),
+                      child: DropdownButton(
+                        dropdownColor: Color(0xFF1A1A2E),
+                        value: categoryValue,
+                        icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFB0B0C3)),
+                        items: categories
+                            ?.map<DropdownMenuItem<Category>>(
+                              (e) =>
+                                  DropdownMenuItem(value: e, child: Text(e.name, style: TextStyle(color: Colors.white))),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            categoryValue = value!;
+                          });
+                        },
+                        isExpanded: true,
+                        underline: SizedBox(),
+                      ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext ctx) => AlertDialog(
-                          title: Text("Add New Category"),
-                          content: TextFormField(controller: _category),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                if (_category.text.trim().isNotEmpty) {
-                                  onAddCategory(widget.isar);
-                                }
-                              },
-                              child: Text('Add'),
+                  SizedBox(width: 8),
+                  Container(
+                    height: 56,
+                    width: 48,
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF1A1A2E),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Color(0xFF6C63FF), width: 1),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext ctx) => AlertDialog(
+                            backgroundColor: Color(0xFF1A1A2E),
+                            title: Text("Add New Category", style: TextStyle(color: Colors.white)),
+                            content: TextFormField(
+                              controller: _category,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Color(0xFF0D0D0D),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_category.text.trim().isNotEmpty) {
+                                    onAddCategory(widget.isar);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF6C63FF),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: Text('Add'),
+                              ),
                           ],
                         ),
                       );
                     },
-                    icon: Icon(Icons.add),
+                    icon: Icon(Icons.add, color: Color(0xFF6C63FF)),
+                    ),
                   ),
                 ],
               ),
 
               /// Title
-              SizedBox(height: 10),
-              Text('Title', style: TextStyle(fontWeight: FontWeight.bold)),
-              TextFormField(controller: _title),
+              SizedBox(height: 16),
+              Text(
+                'Title',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFB0B0C3),
+                  fontSize: 13,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              SizedBox(height: 8),
+              TextFormField(
+                controller: _title,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Color(0xFF1A1A2E),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Color(0xFF6C63FF), width: 2),
+                  ),
+                ),
+              ),
 
               ///Start Time
-              SizedBox(height: 10),
-              Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Text(
+                'Start Time',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFB0B0C3),
+                  fontSize: 13,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -242,28 +325,55 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
                     child: TextFormField(
                       controller: _startTime,
                       enabled: false,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Color(0xFF1A1A2E),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Color(0xFF6C63FF), width: 1),
+                        ),
+                      ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => _onSelectTime(context),
-                    icon: Icon(Icons.calendar_month),
+                    icon: Icon(Icons.calendar_month, color: Color(0xFF6C63FF)),
                   ),
                 ],
               ),
 
               /// Day
-              SizedBox(height: 10),
-              Text('Day', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7,
+              SizedBox(height: 16),
+              Text(
+                'Day',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFB0B0C3),
+                  fontSize: 13,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              SizedBox(height: 8),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Color(0xFF6C63FF), width: 1),
+                ),
                 child: DropdownButton(
-                  focusColor: Colors.white,
-                  dropdownColor: Colors.white,
+                  dropdownColor: Color(0xFF1A1A2E),
                   value: dayValue,
-                  icon: Icon(Icons.keyboard_arrow_down),
+                  icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFB0B0C3)),
                   items: days
                       .map<DropdownMenuItem<String>>(
-                        (e) => DropdownMenuItem(value: e, child: Text(e)),
+                        (e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(color: Colors.white))),
                       )
                       .toList(),
                   onChanged: (value) {
@@ -272,15 +382,36 @@ class _UpdateRoutinePageState extends State<UpdateRoutinePage> {
                     });
                   },
                   isExpanded: true,
+                  underline: SizedBox(),
                 ),
               ),
 
               /// Add Button
+              SizedBox(height: 24),
               Align(
                 alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () => onUpdateRoutine(context),
-                  child: Text('Update Routine'),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 50,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF00D4AA)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () => onUpdateRoutine(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text('Update Routine', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                    ),
+                  ),
                 ),
               ),
             ],

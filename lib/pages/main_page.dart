@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:logger/logger.dart';
-import 'package:routine_app/collections/category/category.dart';
 import 'package:routine_app/collections/product/product.dart';
 import 'package:routine_app/collections/routine/routine.dart';
 import 'package:routine_app/config.dart';
@@ -25,6 +24,7 @@ class _MainPageState extends State<MainPage> {
   String feedback = "";
   MaterialColor feedbackColor = Colors.blue;
   APIService apiService = APIService();
+  bool showProducts = false;
 
   @override
   void initState() {
@@ -117,7 +117,14 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Routine"),
+        backgroundColor: Color(0xFF1A1A2E),
+        title: Text(
+          "Routine",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: () async {
@@ -132,23 +139,29 @@ class _MainPageState extends State<MainPage> {
                 _routine = _readAllRoutines();
               });
             },
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add, color: Color(0xFF6C63FF)),
           ),
 
           IconButton(
             onPressed: () async {
               await _apiToIsar();
-
-              setState(() {});
+              setState(() {
+                showProducts = true;
+              });
             },
-            icon: Icon(Icons.download),
+            icon: Icon(Icons.download, color: Color(0xFF6C63FF)),
           ),
 
           IconButton(
-            onPressed: () {
-              _isarToAPI();
+            onPressed: () async {
+              await _isarToAPI();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Products uploaded successfully!')),
+                );
+              }
             },
-            icon: Icon(Icons.upload),
+            icon: Icon(Icons.upload, color: Color(0xFF6C63FF)),
           ),
         ],
       ),
@@ -158,12 +171,23 @@ class _MainPageState extends State<MainPage> {
           children: [
             TextFormField(
               controller: _search,
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: Color(0xFF1A1A2E),
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Color(0xFF6C63FF), width: 2),
                 ),
                 hintText: 'Search routine',
-                hintStyle: TextStyle(fontStyle: FontStyle.italic),
+                hintStyle: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFFB0B0C3),
+                ),
               ),
               onChanged: (value) {
                 setState(() {
@@ -171,15 +195,17 @@ class _MainPageState extends State<MainPage> {
                 });
               },
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             Text(
               feedback,
               style: TextStyle(
                 color: feedbackColor,
                 fontStyle: FontStyle.italic,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             FutureBuilder(
               future: _routine,
               builder: (context, asyncSnapshot) {
@@ -204,11 +230,11 @@ class _MainPageState extends State<MainPage> {
                                   text: TextSpan(
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.black,
+                                      color: Color(0xFFB0B0C3),
                                     ),
                                     children: [
                                       WidgetSpan(
-                                        child: Icon(Icons.schedule, size: 18),
+                                        child: Icon(Icons.schedule, size: 18, color: Color(0xFFB0B0C3)),
                                       ),
                                       TextSpan(
                                         text: " ${routines[index].startTime}",
@@ -221,13 +247,14 @@ class _MainPageState extends State<MainPage> {
                                   text: TextSpan(
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.black,
+                                      color: Color(0xFFB0B0C3),
                                     ),
                                     children: [
                                       WidgetSpan(
                                         child: Icon(
                                           Icons.calendar_month,
                                           size: 18,
+                                          color: Color(0xFFB0B0C3),
                                         ),
                                       ),
                                       TextSpan(text: " ${routines[index].day}"),
@@ -264,21 +291,25 @@ class _MainPageState extends State<MainPage> {
               },
             ),
 
-            FutureBuilder<List<Product>>(
-              future: _readProducts(),
-              builder: (context, asyncSnapshot) {
-                if (asyncSnapshot.hasData && asyncSnapshot.data!.isNotEmpty) {
-                  final product = asyncSnapshot.data!;
+            if (showProducts)
+              FutureBuilder<List<Product>>(
+                future: showProducts ? _readProducts() : Future.value([]),
+                builder: (context, asyncSnapshot) {
+                  if (asyncSnapshot.hasData && asyncSnapshot.data!.isNotEmpty) {
+                    final product = asyncSnapshot.data!;
 
-                  return GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
+                    return GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
                     physics: ScrollPhysics(),
                     children: List.generate(
                       product.length,
                       (index) => Card(
-                        elevation: 4.0,
-
+                        color: Color(0xFF1A1A2E),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -296,10 +327,18 @@ class _MainPageState extends State<MainPage> {
                               Text(
                                 product[index].title!,
                                 overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.white),
                               ),
-
+                              SizedBox(height: 8),
                               ElevatedButton(
                                 onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF6C63FF),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
                                 child: Text("View"),
                               ),
                             ],
@@ -322,6 +361,13 @@ class _MainPageState extends State<MainPage> {
           height: 50,
           child: ElevatedButton(
             onPressed: onClearAll,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFFF4757),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             child: Text("Clear All"),
           ),
         ),
